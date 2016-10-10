@@ -160,11 +160,19 @@ def utcformat(dt):
 
 
 def utcparse(string):
-    try:
-        return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%SZ')
-    except ValueError:
-        # This catches RQ < 0.4 datetime format
-        return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%f+00:00')
+    # from dateutil.parser import parse
+    # return parse(string)
+    FORMATS = (
+        '%Y-%m-%dT%H:%M:%SZ',  # this should be the only format occuring
+        '%Y-%m-%dT%H:%M:%S.%f+00:00',  # this catches RQ < 0.4 datetime format
+        '%Y-%m-%dT%H:%M:%S+00:00',  # and this one somehow occurs as well :(
+    )
+    for formats in FORMATS:
+        try:
+            return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%SZ')
+        except ValueError as e:
+            pass
+        raise e
 
 
 def first(iterable, default=None, key=None):
